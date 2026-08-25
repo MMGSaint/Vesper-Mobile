@@ -1,0 +1,33 @@
+# Android
+.gradle/
+**/build/
+local.properties
+*.iml
+.idea/
+.cxx/
+captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.keystore
+*.jks
+keystore.properties
+*.hprof
+
+# Node / preview (not shipped as the product)
+node_modules/
+dist/
+.output/
+.nitro/
+.tanstack/
+.vite/
+
+# Secrets / local
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
