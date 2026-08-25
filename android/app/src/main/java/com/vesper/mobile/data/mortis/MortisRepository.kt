@@ -49,7 +49,7 @@ class MortisRepository(
         if (passphrase.isBlank()) {
             return MortisResult.Misconfigured("Passphrase is empty.")
         }
-        val body = api.encodeValue(
+        val body = json.encodeToString(
             UnlockRequest(passphrase = passphrase, operator_id = operatorId),
         )
         val env = api.adminPost(s.mortisHost, s.adminPathSeg, "api/session/unlock", body, bearer = null)
@@ -94,7 +94,7 @@ class MortisRepository(
     }
 
     suspend fun stepUp(passphrase: String, op: String): MortisResult<String> {
-        val body = api.encodeValue(StepUpRequest(passphrase = passphrase, op = op))
+        val body = json.encodeToString(StepUpRequest(passphrase = passphrase, op = op))
         return when (val env = adminPost("api/session/stepup", body)) {
             is MortisResult.Ok -> {
                 val confirm = env.value.string("confirm", "confirm_token", "token", "x-mortis-confirm")
@@ -168,7 +168,7 @@ class MortisRepository(
     suspend fun inboxSync(): MortisResult<MortisEnvelope> = adminPost("api/inbox/sync", "{}")
 
     suspend fun intakePush(files: List<IntakeFile>): MortisResult<MortisEnvelope> {
-        val body = api.encodeValue(IntakePushRequest(files))
+        val body = json.encodeToString(IntakePushRequest(files))
         return adminPost("api/intake/push", body)
     }
 

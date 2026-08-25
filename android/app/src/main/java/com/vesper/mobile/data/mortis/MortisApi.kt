@@ -1,6 +1,5 @@
 package com.vesper.mobile.data.mortis
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import okhttp3.HttpUrl
@@ -22,7 +21,8 @@ class MortisApi(
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
         .callTimeout(45, TimeUnit.SECONDS)
-        .followRedirects(true)
+        .followRedirects(false)
+        .followSslRedirects(false)
         .build()
 
     private val healthClient: OkHttpClient = http.newBuilder()
@@ -68,8 +68,6 @@ class MortisApi(
         val req = Request.Builder().url(url).post(requestBody).applyAuth(bearer, confirm).build()
         return execute(http, req)
     }
-
-    inline fun <reified T> encodeValue(value: T): String = json.encodeToString(value)
 
     private fun adminUrl(
         host: String,

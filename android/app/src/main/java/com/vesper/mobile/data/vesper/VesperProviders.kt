@@ -81,11 +81,13 @@ class RemoteProvider(
             var last = "No response."
             for (url in urls) {
                 val req = Request.Builder().url(url).get().header("Accept", "application/json").build()
-                val env = runCatching { http.newCall(req).execute().use { it.code to (it.body?.string().orEmpty()) } }
-                    .getOrElse {
-                        last = it.message ?: "network error"
-                        continue
-                    }
+                val env = runCatching {
+                    http.newCall(req).execute().use { it.code to (it.body?.string().orEmpty()) }
+                }.getOrNull()
+                if (env == null) {
+                    last = "network error"
+                    continue
+                }
                 if (env.first in 200..299) {
                     return@withContext ProviderAvailability.Available
                 }
@@ -119,8 +121,9 @@ class RemoteProvider(
                     .build()
                 val env = runCatching {
                     http.newCall(req).execute().use { it.code to (it.body?.string().orEmpty()) }
-                }.getOrElse {
-                    last = it.message ?: "network error"
+                }.getOrNull()
+                if (env == null) {
+                    last = "network error"
                     continue
                 }
                 if (env.first in 200..299) {

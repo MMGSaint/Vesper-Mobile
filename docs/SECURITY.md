@@ -22,6 +22,7 @@
 
 - TLS only (`usesCleartextTraffic=false`)
 - Admin APIs are same-origin on the Worker; the Android client is the operator device
+- Operator HTTP client does not follow redirects (prevents bearer leakage)
 - Redirects on operator calls are rejected by the web proxy
 
 ## Logging
