@@ -52,9 +52,23 @@ class AppContainer(
         }
 
         fun degraded(context: Context, error: Throwable): AppContainer {
-            return runCatching { create(context, error.toString()) }.getOrElse { second ->
-                create(context, listOf(error.toString(), second.toString()).joinToString(" | "))
-            }
+            val recovered = runCatching { create(context, error.toString()) }.getOrNull()
+            if (recovered != null) return recovered
+            val app = context.applicationContext
+            val settings = SettingsStore(app)
+            val session = SessionStore(app)
+            val api = MortisApi(json)
+            return AppContainer(
+                settings = settings,
+                session = session,
+                connectivity = ConnectivityMonitor(app),
+                notifications = NotificationHelper(app),
+                mortisApi = api,
+                mortis = MortisRepository(api, settings, session, json),
+                chat = ChatStore(app, json),
+                vesper = VesperEnvironment(settings, json),
+                bootstrapError = error.toString(),
+            )
         }
     }
 }

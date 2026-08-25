@@ -9,3 +9,6 @@
 -dontwarn org.bouncycastle.**
 -dontwarn org.conscrypt.**
 -dontwarn org.openjsse.**
+-dontwarn com.google.errorprone.annotations.**
+-dontwarn com.google.crypto.tink.**
+-dontwarn javax.annotation.**
