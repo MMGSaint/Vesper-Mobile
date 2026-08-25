@@ -69,11 +69,6 @@ class MortisApi(
         return execute(http, req)
     }
 
-    fun encode(value: Any): String = when (value) {
-        is String -> value
-        else -> json.encodeToString(kotlinx.serialization.serializer(value::class.java), value)
-    }
-
     inline fun <reified T> encodeValue(value: T): String = json.encodeToString(value)
 
     private fun adminUrl(

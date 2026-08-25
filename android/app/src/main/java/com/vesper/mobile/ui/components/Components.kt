@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -24,10 +25,14 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -155,6 +160,19 @@ fun Hairline(modifier: Modifier = Modifier) {
     )
 }
 
+/** Blocks screenshots while operator secrets (passphrase, admin path, signed payload) are on screen. */
+@Composable
+fun SecureWindow() {
+    val view = LocalView.current
+    DisposableEffect(Unit) {
+        val window = (view.context as? android.app.Activity)?.window
+        window?.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        onDispose {
+            window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
+}
+
 @Composable
 fun OfflineBanner(text: String) {
     Box(
@@ -216,7 +234,9 @@ fun SteelButton(label: String, enabled: Boolean = true, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = 48.dp)
             .border(1.dp, color)
+            .semantics { contentDescription = label }
             .clickable(enabled = enabled, onClick = onClick)
             .padding(vertical = 14.dp),
         contentAlignment = Alignment.Center,
@@ -231,8 +251,10 @@ fun DangerButton(label: String, enabled: Boolean = true, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = 48.dp)
             .background(if (enabled) CrimsonSoft else Color.Transparent)
             .border(1.dp, border)
+            .semantics { contentDescription = label }
             .clickable(enabled = enabled, onClick = onClick)
             .padding(vertical = 14.dp),
         contentAlignment = Alignment.Center,
@@ -246,7 +268,9 @@ fun GhostButton(label: String, enabled: Boolean = true, compact: Boolean = false
     Box(
         modifier = Modifier
             .then(if (compact) Modifier else Modifier.fillMaxWidth())
+            .heightIn(min = if (compact) 40.dp else 48.dp)
             .border(1.dp, HairlineColor)
+            .semantics { contentDescription = label }
             .clickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = 12.dp, vertical = if (compact) 8.dp else 12.dp),
         contentAlignment = Alignment.Center,

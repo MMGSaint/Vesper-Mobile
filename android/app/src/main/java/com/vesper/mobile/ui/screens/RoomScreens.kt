@@ -41,6 +41,7 @@ import com.vesper.mobile.ui.components.KeyValue
 import com.vesper.mobile.ui.components.MonoId
 import com.vesper.mobile.ui.components.Panel
 import com.vesper.mobile.ui.components.SectionLabel
+import com.vesper.mobile.ui.components.SecureWindow
 import com.vesper.mobile.ui.components.StatusRow
 import com.vesper.mobile.ui.components.SteelButton
 import com.vesper.mobile.ui.components.UnavailableState
@@ -69,6 +70,7 @@ fun ReleaseCenterScreen(
         banner = app.surface.offlineBanner,
         actions = { Text("REFRESH", style = LabelStyle, modifier = Modifier.clickable { vm.refresh() }) },
     ) {
+        SecureWindow()
         Text(LegalCopy.SIGNING_KEY_OFF_DEVICE, style = MonoStyle.copy(color = Muted, fontSize = 11.sp))
         Text(LegalCopy.WINDOWS_NO_BINARY, style = MonoStyle.copy(color = Muted, fontSize = 11.sp))
         Text(LegalCopy.ANDROID_PLAYER_NO_BINARY, style = MonoStyle.copy(color = Muted, fontSize = 11.sp))
@@ -398,6 +400,7 @@ fun SettingsScreen(
     var operator by remember(s.operatorId) { mutableStateOf(s.operatorId) }
     var endpoint by remember(s.vesperEndpoint) { mutableStateOf(s.vesperEndpoint) }
     VesperScaffold(title = "SETTINGS", onBack = onBack) {
+        SecureWindow()
         ErrorLine(notice)
         SectionLabel("MORTIS HOST")
         VesperField(host, { host = it }, placeholder = "https://…", mono = true)

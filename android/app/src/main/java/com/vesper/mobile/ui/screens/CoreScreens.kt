@@ -35,6 +35,7 @@ import com.vesper.mobile.ui.components.ErrorLine
 import com.vesper.mobile.ui.components.GhostButton
 import com.vesper.mobile.ui.components.Hairline
 import com.vesper.mobile.ui.components.SectionLabel
+import com.vesper.mobile.ui.components.SecureWindow
 import com.vesper.mobile.ui.components.StatusRow
 import com.vesper.mobile.ui.components.SteelButton
 import com.vesper.mobile.ui.components.UnavailableState
@@ -278,6 +279,7 @@ fun UnlockScreen(
         }
     }
     VesperScaffold(title = "OPERATOR UNLOCK", onBack = onBack) {
+        SecureWindow()
         Text(
             text = "Passphrase is POSTed to Mortis and is never stored on this device. Session token is held in EncryptedSharedPreferences. Idle 15 minutes. Absolute 60 minutes.",
             style = MonoStyle.copy(color = Muted, fontSize = 11.sp),

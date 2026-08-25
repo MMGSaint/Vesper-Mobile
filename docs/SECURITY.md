@@ -14,12 +14,15 @@
 
 - Mortis issues a short-lived session (idle 15 minutes, absolute 60 minutes).
 - Android stores the token in EncryptedSharedPreferences. Backup is disabled.
+- Web companion keeps the token in memory only.
 - Privileged mutations require a one-time `x-mortis-confirm` nonce from step-up.
+- Unlock, Settings, and Release screens set `FLAG_SECURE` so passphrase, admin path, and signed payloads are not captured in screenshots.
 
 ## Transport
 
 - TLS only (`usesCleartextTraffic=false`)
 - Admin APIs are same-origin on the Worker; the Android client is the operator device
+- Redirects on operator calls are rejected by the web proxy
 
 ## Logging
 
