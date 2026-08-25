@@ -207,6 +207,9 @@ class VesperEnvironment(
     val tools = VesperToolProvider()
     val memory = VesperMemoryProvider()
     val presence = VesperPresenceProvider()
+    val activeTransport: VesperTransport = UnavailableTransport()
+    val futureLocalTransport: VesperTransport = FutureLocalTransport()
+    val futureLanTransport: VesperTransport = FutureLanTransport()
 
     val providers: List<AIProvider> = listOf(local, remote, future)
 
@@ -218,16 +221,15 @@ class VesperEnvironment(
     }
 
     suspend fun statusLine(): Pair<String, String> {
-        val remoteState = remote.availability()
-        return when (remoteState) {
-            is ProviderAvailability.Available -> "REACHABLE" to "Remote endpoint answered health."
-            is ProviderAvailability.Unavailable -> {
-                val localState = local.availability()
-                "UNAVAILABLE" to when (localState) {
-                    is ProviderAvailability.Unavailable -> localState.reason
-                    else -> remoteState.reason
-                }
-            }
+        val transport = runCatching { activeTransport.status() }.getOrDefault(TransportStatus.NotConnected)
+        val remoteState = runCatching { remote.availability() }.getOrElse {
+            ProviderAvailability.Unavailable(it.message ?: "Remote probe failed.")
+        }
+        return when {
+            transport.connected -> transport.label to transport.detail
+            remoteState is ProviderAvailability.Available ->
+                "NOT CONNECTED" to "Optional remote endpoint answered health. vesper.client PC transport is still ${transport.label}."
+            else -> transport.label to transport.detail
         }
     }
 }
