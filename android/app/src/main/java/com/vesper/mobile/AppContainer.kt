@@ -11,21 +11,50 @@ import com.vesper.mobile.notify.NotificationHelper
 import com.vesper.mobile.security.SessionStore
 import kotlinx.serialization.json.Json
 
-class AppContainer(context: Context) {
-    val json: Json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-        encodeDefaults = true
-        explicitNulls = false
-        coerceInputValues = true
-    }
+class AppContainer(
+    val settings: SettingsStore,
+    val session: SessionStore,
+    val connectivity: ConnectivityMonitor,
+    val notifications: NotificationHelper,
+    val mortisApi: MortisApi,
+    val mortis: MortisRepository,
+    val chat: ChatStore,
+    val vesper: VesperEnvironment,
+    val bootstrapError: String? = null,
+) {
+    companion object {
+        val json: Json = Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            encodeDefaults = true
+            explicitNulls = false
+            coerceInputValues = true
+        }
 
-    val settings = SettingsStore(context)
-    val session = SessionStore(context)
-    val connectivity = ConnectivityMonitor(context)
-    val notifications = NotificationHelper(context)
-    val mortisApi = MortisApi(json)
-    val mortis = MortisRepository(mortisApi, settings, session, json)
-    val chat = ChatStore(context, json)
-    val vesper = VesperEnvironment(settings, json)
+        fun create(context: Context, bootstrapError: String? = null): AppContainer {
+            val app = context.applicationContext
+            val settings = SettingsStore(app)
+            val session = SessionStore(app)
+            val connectivity = ConnectivityMonitor(app)
+            val notifications = NotificationHelper(app)
+            val mortisApi = MortisApi(json)
+            return AppContainer(
+                settings = settings,
+                session = session,
+                connectivity = connectivity,
+                notifications = notifications,
+                mortisApi = mortisApi,
+                mortis = MortisRepository(mortisApi, settings, session, json),
+                chat = ChatStore(app, json),
+                vesper = VesperEnvironment(settings, json),
+                bootstrapError = bootstrapError,
+            )
+        }
+
+        fun degraded(context: Context, error: Throwable): AppContainer {
+            return runCatching { create(context, error.toString()) }.getOrElse { second ->
+                create(context, listOf(error.toString(), second.toString()).joinToString(" | "))
+            }
+        }
+    }
 }
