@@ -32,7 +32,7 @@ Open Vesper
 3. Settings → Mortis host (default is the live Worker) → operator-room path segment.
 4. Operator tab → unlock with identity + passphrase.
 
-Latest green run: [CI #9](https://github.com/MMGSaint/Vesper-Mobile/actions/runs/32829767882) (`8a4a795`).
+Latest crashy sideload (`0.1.0` / `8a4a795` and earlier) is **superseded**. Install a `0.1.1` debug APK from a green CI run on or after the startup-resilience commits.
 
 Do not put the admin path, passphrase, or signing key in this repo.
 

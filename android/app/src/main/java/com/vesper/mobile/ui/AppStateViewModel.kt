@@ -16,6 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -43,9 +44,9 @@ class AppStateViewModel(private val c: AppContainer) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            c.settings.flow.collect { s ->
-                _state.update { it.copy(settings = s) }
-            }
+            c.settings.flow
+                .catch { emit(VesperSettings()) }
+                .collect { s -> _state.update { it.copy(settings = s) } }
         }
         viewModelScope.launch {
             c.connectivity.online.collect { online ->
@@ -55,6 +56,10 @@ class AppStateViewModel(private val c: AppContainer) : ViewModel() {
             }
         }
         refresh(initial = true)
+        viewModelScope.launch {
+            delay(2_000)
+            _state.update { cur -> if (cur.ready) cur else cur.copy(ready = true, probing = false) }
+        }
         tick = viewModelScope.launch {
             while (true) {
                 delay(15_000)
@@ -66,24 +71,30 @@ class AppStateViewModel(private val c: AppContainer) : ViewModel() {
     fun refresh(initial: Boolean = false) {
         viewModelScope.launch {
             _state.update { it.copy(probing = true) }
-            val network = c.connectivity.isCurrentlyOnline()
-            val mortis = if (network) c.mortis.health() else LinkStatus.offline.copy(label = "UNAVAILABLE")
-            val (vesperLabel, vesperDetail) = if (network) {
-                c.vesper.statusLine()
+            val network = runCatching { c.connectivity.isCurrentlyOnline() }.getOrDefault(false)
+            val mortis = if (network) {
+                runCatching { c.mortis.health() }.getOrElse {
+                    LinkStatus(false, "UNAVAILABLE", it.message ?: "Mortis probe failed.")
+                }
             } else {
-                "UNAVAILABLE" to "No network path."
+                LinkStatus.offline.copy(label = "UNAVAILABLE")
             }
+            val (vesperLabel, vesperDetail) = runCatching {
+                c.vesper.statusLine()
+            }.getOrDefault("NOT CONNECTED" to "Vesper core probe failed.")
             val vesper = LinkStatus(
                 reachable = vesperLabel == "REACHABLE",
                 label = vesperLabel,
                 detail = vesperDetail,
             )
-            val op = c.session.view()
+            val op = runCatching { c.session.view() }.getOrElse {
+                OperatorSessionView(false, null, null, null, "Session unreadable. Locked.")
+            }
             var attention = AttentionView(null, if (op.unlocked) "Waiting on dashboard." else "Locked.")
             var last = LastEventView(null, null)
             var dash: DashboardSnapshot? = null
             if (op.unlocked && mortis.reachable) {
-                when (val d = c.mortis.dashboard()) {
+                when (val d = runCatching { c.mortis.dashboard() }.getOrNull()) {
                     is MortisResult.Ok -> {
                         dash = d.value
                         attention = AttentionView(
@@ -92,9 +103,8 @@ class AppStateViewModel(private val c: AppContainer) : ViewModel() {
                         )
                         last = LastEventView(d.value.lastEvent, d.value.lastEventAt)
                     }
-                    else -> {
-                        attention = AttentionView(null, d.detailOrNull() ?: "Dashboard unread.")
-                    }
+                    null -> attention = AttentionView(null, "Dashboard unread.")
+                    else -> attention = AttentionView(null, d.detailOrNull() ?: "Dashboard unread.")
                 }
             }
             _state.update {
@@ -116,7 +126,9 @@ class AppStateViewModel(private val c: AppContainer) : ViewModel() {
     }
 
     fun applySession() {
-        val op = c.session.view()
+        val op = runCatching { c.session.view() }.getOrElse {
+            OperatorSessionView(false, null, null, null, "Session unreadable. Locked.")
+        }
         _state.update { cur ->
             cur.copy(surface = cur.surface.copy(operator = op))
         }

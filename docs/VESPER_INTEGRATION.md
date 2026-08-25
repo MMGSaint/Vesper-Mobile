@@ -11,6 +11,16 @@ AIProvider
 
 The UI never talks to a model directly. It asks the provider. If no provider is available, the surface says so and does not invent a reply.
 
+## Transport (intentionally unused)
+
+`VesperTransport` is the future companion path:
+
+- `UnavailableTransport` — current production path
+- `FutureLocalTransport` — reserved on-device / loopback
+- `FutureLanTransport` — reserved authenticated LAN
+
+The UI must show **VESPER CORE: NOT CONNECTED**. Do not invent a listener on the phone or the PC.
+
 ## PC bridge (intentionally empty)
 
 Interfaces exist so the PC runtime can plug in later **without rewriting the app**:

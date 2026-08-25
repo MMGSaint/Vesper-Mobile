@@ -8,7 +8,7 @@ Optimized for modern Samsung: edge-to-edge, 48dp targets, IBM-like label trackin
 
 | Data | Where |
 |---|---|
-| Operator session | EncryptedSharedPreferences, excluded from backup |
+| Operator session | EncryptedSharedPreferences when Keystore works; private `MODE_PRIVATE` fallback otherwise. Invalid state logs the operator out. |
 | Host / path / prefs | DataStore |
 | Chat history | app files (`vesper_chat.json`) |
 | Passphrase | never written |

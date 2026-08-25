@@ -18,6 +18,8 @@ gradle assembleDebug
 
 GitHub Actions on push/PR runs unit tests and `assembleDebug`, then uploads the APK.
 
+Debug APKs from CI runs before the 0.1.1 startup-resilience series are superseded. They could die during EncryptedSharedPreferences / Keystore init.
+
 ### Release signing (human)
 
 This environment has no Play / upload keystore. Debug APK is the automated artifact.
