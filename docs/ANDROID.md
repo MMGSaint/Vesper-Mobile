@@ -2,7 +2,7 @@
 
 Package `com.vesper.mobile`. Min SDK 26. Target / compile 35. Compose + Navigation.
 
-Optimized for modern Samsung: edge-to-edge, 44dp targets, IBM-like label tracking, dark parchment/steel/crimson. No neon, no fake sci-fi chrome.
+Optimized for modern Samsung: edge-to-edge, 48dp targets, IBM-like label tracking, dark parchment/steel/crimson. No neon, no fake sci-fi chrome.
 
 ## Storage
 

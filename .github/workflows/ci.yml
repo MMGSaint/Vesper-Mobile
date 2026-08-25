@@ -42,7 +42,6 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.10.2"
-          build-root-directory: android
 
       - name: Unit tests
         run: gradle testDebugUnitTest --stacktrace

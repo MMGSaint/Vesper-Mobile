@@ -27,10 +27,12 @@ Open Vesper
 
 ## Install
 
-1. Wait for the **CI** workflow on `main` and download `app-debug.apk`.
-2. Sideload on the Samsung device.
+1. Open the latest successful **CI** run on `main` and download `vesper-debug-apk`.
+2. Sideload `app-debug.apk` on the Samsung device (USB debugging or Files).
 3. Settings → Mortis host (default is the live Worker) → operator-room path segment.
 4. Operator tab → unlock with identity + passphrase.
+
+Latest green run: [CI #9](https://github.com/MMGSaint/Vesper-Mobile/actions/runs/32829767882) (`8a4a795`).
 
 Do not put the admin path, passphrase, or signing key in this repo.
 
