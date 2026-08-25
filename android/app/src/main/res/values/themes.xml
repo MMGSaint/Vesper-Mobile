@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Vesper" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">@color/vesper_near_black</item>
+        <item name="android:navigationBarColor">@color/vesper_near_black</item>
+        <item name="android:windowBackground">@color/vesper_near_black</item>
+        <item name="android:colorPrimary">@color/vesper_steel</item>
+        <item name="android:colorAccent">@color/vesper_steel</item>
+        <item name="android:textColor">@color/vesper_parchment</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

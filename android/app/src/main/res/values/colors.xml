@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="vesper_near_black">#09090B</color>
+    <color name="vesper_elevated">#111114</color>
+    <color name="vesper_parchment">#E4E1D8</color>
+    <color name="vesper_muted">#8A8880</color>
+    <color name="vesper_hairline">#23232A</color>
+    <color name="vesper_steel">#C4C0B6</color>
+    <color name="vesper_crimson">#8A1F1F</color>
+</resources>

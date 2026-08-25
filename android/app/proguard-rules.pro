@@ -1,0 +1,11 @@
+-keepattributes *Annotation*, InnerClasses, Signature, Exception
+-keep class kotlinx.serialization.** { *; }
+-keepclassmembers class kotlinx.serialization.json.** { *; }
+-dontwarn kotlinx.serialization.**
+-keep @kotlinx.serialization.Serializable class ** { *; }
+-keep class com.vesper.mobile.data.mortis.** { *; }
+-keep class com.vesper.mobile.data.vesper.** { *; }
+-keep class com.vesper.mobile.domain.** { *; }
+-dontwarn org.bouncycastle.**
+-dontwarn org.conscrypt.**
+-dontwarn org.openjsse.**
