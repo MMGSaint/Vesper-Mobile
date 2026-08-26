@@ -22,6 +22,9 @@ class AppContainer(
     val vesper: VesperEnvironment,
     val bootstrapError: String? = null,
 ) {
+    /** Instance alias so callers can use `container.json` (companion is the source of truth). */
+    val json: Json get() = Companion.json
+
     companion object {
         val json: Json = Json {
             ignoreUnknownKeys = true

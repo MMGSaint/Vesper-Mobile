@@ -6,17 +6,21 @@
 android/
   app/                 Kotlin + Compose (com.vesper.mobile)
   gradle/libs.versions.toml
+  gradlew              Gradle 8.10.2 wrapper (CI + CodeQL)
 ```
 
 Requirements: JDK 17, Android SDK 35, Gradle 8.10.2.
 
 ```bash
 cd android
-gradle assembleDebug
+./gradlew testDebugUnitTest
+./gradlew assembleDebug
 # APK: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-GitHub Actions on push/PR runs unit tests and `assembleDebug`, then uploads the APK.
+GitHub Actions on push/PR runs unit tests and `assembleDebug`, then uploads the `vesper-debug-apk` artifact.
+
+CodeQL Java/Kotlin uses the same `android/` wrapper and `assembleDebug` path (manual build-mode). Do not use `assemble` (release minify) for analysis.
 
 Debug APKs from CI runs before the 0.1.1 startup-resilience series are superseded. They could die during EncryptedSharedPreferences / Keystore init.
 
@@ -37,7 +41,7 @@ keyPassword=...
 ```
 
 3. Wire `signingConfigs.release` in `app/build.gradle.kts`.
-4. `gradle assembleRelease`
+4. `./gradlew assembleRelease`
 
 This is **application signing**, not Mortis dataset Ed25519 signing. Those keys are unrelated.
 

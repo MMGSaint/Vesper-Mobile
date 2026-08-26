@@ -1,1 +1,1 @@
-The Gradle wrapper JAR is generated in CI before assemble. See docs/BUILD.md.
+Gradle 8.10.2 wrapper. CI and CodeQL run ./gradlew from this directory.

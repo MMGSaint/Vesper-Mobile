@@ -32,25 +32,19 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      - name: Fetch Gradle wrapper jar
-        run: |
-          mkdir -p gradle/wrapper
-          curl -sL -o gradle/wrapper/gradle-wrapper.jar \
-            https://raw.githubusercontent.com/gradle/gradle/v8.10.2/gradle/wrapper/gradle-wrapper.jar
-          test -s gradle/wrapper/gradle-wrapper.jar
-
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.10.2"
+          validate-wrappers: true
 
       - name: Unit tests
-        run: gradle testDebugUnitTest --stacktrace
+        run: ./gradlew testDebugUnitTest --stacktrace --no-daemon
 
       - name: Assemble debug APK
-        run: gradle assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace --no-daemon
 
       - uses: actions/upload-artifact@v4
         with:
           name: vesper-debug-apk
           path: android/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+          retention-days: 30
