@@ -40,11 +40,13 @@ class ChatStore(
         val payload = turns.map {
             StoredTurn(it.id, it.role, it.text, it.atEpochMs, it.status, it.error)
         }
-        file.writeText(json.encodeToString(payload))
+        runCatching { file.writeText(json.encodeToString(payload)) }
+        Unit
     }
 
     suspend fun clear() = withContext(Dispatchers.IO) {
-        if (file.exists()) file.delete()
+        runCatching { if (file.exists()) file.delete() }
+        Unit
     }
 
     fun newId(): String = UUID.randomUUID().toString()

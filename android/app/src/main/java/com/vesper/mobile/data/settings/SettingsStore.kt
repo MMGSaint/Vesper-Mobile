@@ -2,16 +2,28 @@ package com.vesper.mobile.data.settings
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 
-private val Context.vesperSettings: DataStore<Preferences> by preferencesDataStore(name = "vesper_settings")
+/**
+ * A corrupted preferences file must reset to defaults, never crash a caller.
+ * Unlock reads and writes settings before the network round-trip, so this
+ * store sits on the authentication transition's crash path.
+ */
+private val Context.vesperSettings: DataStore<Preferences> by preferencesDataStore(
+    name = "vesper_settings",
+    corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
+)
 
 data class VesperSettings(
     val mortisHost: String = SettingsStore.DEFAULT_HOST,
@@ -29,7 +41,11 @@ data class VesperSettings(
 
 class SettingsStore(private val context: Context) {
 
-    val flow: Flow<VesperSettings> = context.vesperSettings.data.map { it.toModel() }
+    val flow: Flow<VesperSettings> = context.vesperSettings.data
+        .catch { failure ->
+            if (failure is IOException) emit(emptyPreferences()) else throw failure
+        }
+        .map { it.toModel() }
 
     suspend fun snapshot(): VesperSettings = flow.first()
 

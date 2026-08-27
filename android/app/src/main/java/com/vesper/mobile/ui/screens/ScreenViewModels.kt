@@ -200,9 +200,15 @@ class UnlockViewModel(private val c: AppContainer) : ViewModel() {
             }
             _state.update { it.copy(busy = true, error = null) }
             if (s.operatorId.isNotBlank()) {
-                c.settings.update { it.copy(operatorId = s.operatorId) }
+                runCatching { c.settings.update { it.copy(operatorId = s.operatorId) } }
             }
-            when (val r = c.mortis.unlock(s.passphrase, s.operatorId)) {
+            val r = runCatching { c.mortis.unlock(s.passphrase, s.operatorId) }
+                .getOrElse { failure ->
+                    MortisResult.NetworkError(
+                        failure.message ?: "${failure.javaClass.simpleName} during unlock.",
+                    )
+                }
+            when (r) {
                 is MortisResult.Ok -> _state.update {
                     it.copy(busy = false, unlocked = true, passphrase = "", error = null)
                 }

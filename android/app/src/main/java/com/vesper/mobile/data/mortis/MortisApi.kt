@@ -1,5 +1,8 @@
 package com.vesper.mobile.data.mortis
 
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import okhttp3.HttpUrl
@@ -9,7 +12,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 class MortisApi(
@@ -31,17 +33,17 @@ class MortisApi(
         .callTimeout(10, TimeUnit.SECONDS)
         .build()
 
-    fun health(host: String): MortisEnvelope {
+    suspend fun health(host: String): MortisEnvelope {
         val url = host.trimEnd('/') + "/v1/health"
         return execute(healthClient, Request.Builder().url(url).get().build())
     }
 
-    fun publicGet(host: String, path: String): MortisEnvelope {
+    suspend fun publicGet(host: String, path: String): MortisEnvelope {
         val url = host.trimEnd('/') + path
         return execute(http, Request.Builder().url(url).get().build())
     }
 
-    fun adminGet(
+    suspend fun adminGet(
         host: String,
         adminSeg: String,
         path: String,
@@ -54,7 +56,7 @@ class MortisApi(
         return execute(http, req)
     }
 
-    fun adminPost(
+    suspend fun adminPost(
         host: String,
         adminSeg: String,
         path: String,
@@ -94,25 +96,36 @@ class MortisApi(
         return this
     }
 
-    private fun execute(client: OkHttpClient, request: Request): MortisEnvelope {
-        return try {
-            client.newCall(request).execute().use { resp ->
-                val raw = resp.body?.string().orEmpty()
-                val parsed: JsonElement? = if (raw.isBlank()) {
-                    null
-                } else {
-                    runCatching { json.parseToJsonElement(raw) }.getOrNull()
+    /**
+     * All Mortis network I/O runs on Dispatchers.IO and never throws into the
+     * caller. On a physical device, running the synchronous OkHttp call on the
+     * main dispatcher raised NetworkOnMainThreadException: the unlock path
+     * crashed the process and the health probe surfaced the null-message
+     * fallback "Mortis probe failed." A failure here becomes an envelope with
+     * code -1 so every ViewModel renders an error state instead of dying.
+     */
+    private suspend fun execute(client: OkHttpClient, request: Request): MortisEnvelope =
+        withContext(Dispatchers.IO) {
+            try {
+                client.newCall(request).execute().use { resp ->
+                    val raw = resp.body?.string().orEmpty()
+                    val parsed: JsonElement? = if (raw.isBlank()) {
+                        null
+                    } else {
+                        runCatching { json.parseToJsonElement(raw) }.getOrNull()
+                    }
+                    MortisEnvelope(code = resp.code, raw = raw, json = parsed)
                 }
-                MortisEnvelope(code = resp.code, raw = raw, json = parsed)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                MortisEnvelope(
+                    code = -1,
+                    raw = failure.message ?: failure.javaClass.simpleName,
+                    json = null,
+                )
             }
-        } catch (io: IOException) {
-            MortisEnvelope(
-                code = -1,
-                raw = io.message ?: "network error",
-                json = null,
-            )
         }
-    }
 
     private fun badUrl(): MortisEnvelope =
         MortisEnvelope(code = -2, raw = "Invalid host or empty admin path segment.", json = null)

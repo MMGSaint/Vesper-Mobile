@@ -74,7 +74,7 @@ class AppStateViewModel(private val c: AppContainer) : ViewModel() {
             val network = runCatching { c.connectivity.isCurrentlyOnline() }.getOrDefault(false)
             val mortis = if (network) {
                 runCatching { c.mortis.health() }.getOrElse {
-                    LinkStatus(false, "UNAVAILABLE", it.message ?: "Mortis probe failed.")
+                    LinkStatus(false, "UNAVAILABLE", it.message ?: "Mortis probe failed (${it.javaClass.simpleName}).")
                 }
             } else {
                 LinkStatus.offline.copy(label = "UNAVAILABLE")
