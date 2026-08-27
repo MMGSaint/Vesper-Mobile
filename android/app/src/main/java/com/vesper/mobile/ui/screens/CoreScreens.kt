@@ -42,6 +42,7 @@ import com.vesper.mobile.ui.components.UnavailableState
 import com.vesper.mobile.ui.components.VesperField
 import com.vesper.mobile.ui.components.VesperFill
 import com.vesper.mobile.ui.components.VesperScaffold
+import com.vesper.mobile.ui.theme.BodyStyle
 import com.vesper.mobile.ui.theme.Elevated
 import com.vesper.mobile.ui.theme.Hairline as HairlineColor
 import com.vesper.mobile.ui.theme.LabelStyle
@@ -278,21 +279,31 @@ fun UnlockScreen(
             onUnlocked()
         }
     }
-    VesperScaffold(title = "OPERATOR UNLOCK", onBack = onBack) {
+    VesperScaffold(title = "OPERATOR ACCESS", onBack = onBack) {
         SecureWindow()
+        Spacer(Modifier.height(20.dp))
         Text(
-            text = "Passphrase is POSTed to Mortis and is never stored on this device. Session token is held in EncryptedSharedPreferences. Idle 15 minutes. Absolute 60 minutes.",
-            style = MonoStyle.copy(color = Muted, fontSize = 11.sp),
+            text = "MORTIS",
+            style = BodyStyle.copy(
+                color = Parchment,
+                fontSize = 34.sp,
+                letterSpacing = 9.sp,
+            ),
+            modifier = Modifier.fillMaxWidth(),
         )
-        Spacer(Modifier.height(16.dp))
-        StatusRow("HOST", state.host)
-        StatusRow("ADMIN PATH", if (state.adminSet) "SET" else "MISSING")
+        Spacer(Modifier.height(6.dp))
+        Text(text = "OPERATOR ACCESS", style = LabelStyle.copy(color = Steel))
+        Spacer(Modifier.height(14.dp))
+        Hairline()
+        Spacer(Modifier.height(10.dp))
+        Text(text = "AUTHORIZED PERSONNEL", style = LabelStyle)
+        Spacer(Modifier.height(14.dp))
         if (!state.adminSet) {
-            Spacer(Modifier.height(12.dp))
             UnavailableState(
                 title = "NOT CONFIGURED",
                 reason = "Paste the admin path segment in Settings. It is not shipped in this APK.",
             )
+            Spacer(Modifier.height(12.dp))
         }
         SectionLabel("OPERATOR ID")
         VesperField(value = state.operatorId, onValueChange = vm::onOperator, placeholder = "operator_id", mono = true)
@@ -304,6 +315,16 @@ fun UnlockScreen(
             label = if (state.busy) "UNLOCKING" else "UNLOCK",
             enabled = !state.busy && state.adminSet && state.passphrase.isNotBlank(),
             onClick = vm::unlock,
+        )
+        Spacer(Modifier.height(18.dp))
+        Hairline()
+        Spacer(Modifier.height(10.dp))
+        StatusRow("SECURE CHANNEL", if (state.host.startsWith("https://")) "OPERATOR ROOM" else "INSECURE HOST")
+        StatusRow("SESSION", if (state.unlocked) "UNLOCKED" else "LOCKED")
+        Spacer(Modifier.height(10.dp))
+        Text(
+            text = "Passphrase is sent to the Operator Room and never stored on this device. Session token is held in the Android Keystore store. Idle 15 minutes. Absolute 60 minutes.",
+            style = MonoStyle.copy(color = Muted, fontSize = 11.sp),
         )
     }
 }

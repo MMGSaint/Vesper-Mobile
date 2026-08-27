@@ -67,3 +67,12 @@ The APK never contains `ADMIN_PATH_SEG`, `ADMIN_SECRET`, `RELEASE_TOKEN`, or the
 - DM is not a player client
 - Windows player = NO BINARY RELEASE
 - Android player = NO BINARY RELEASE
+
+## Threading and failure contract (Operator data layer)
+
+All Mortis network I/O runs on `Dispatchers.IO` inside `MortisApi`; the data
+layer never throws into a ViewModel. Any transport, TLS, JSON, or runtime
+failure becomes an envelope with code `-1` and a non-blank reason, which
+repositories map to error states (`AUTHENTICATION FAILED`, `OPERATOR ROOM
+UNAVAILABLE`, `SESSION EXPIRED`, `UNEXPECTED RESPONSE`). `LOADING → ERROR`,
+never `LOADING → CRASH`. Locked in by `MortisApiSafetyTest`.

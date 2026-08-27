@@ -123,8 +123,20 @@ fun OperatorHomeScreen(
         Spacer(Modifier.height(20.dp))
         DangerButton("LOCK SESSION", onClick = onLogout)
         Spacer(Modifier.height(16.dp))
-        Text(LegalCopy.STAGING_NE_CANON, style = MonoStyle.copy(color = Muted, fontSize = 11.sp))
-        Text(LegalCopy.APPROVE_NE_PUBLISH, style = MonoStyle.copy(color = Muted, fontSize = 11.sp))
+        Text(
+            text = listOf(
+                LegalCopy.STAGING_NE_CANON,
+                LegalCopy.APPROVE_NE_PUBLISH,
+                LegalCopy.PREPARE_NE_RELEASE,
+                LegalCopy.TEASE_NE_REVEAL,
+                LegalCopy.TRIGGER_NE_REVEAL,
+                LegalCopy.SEAL_NE_PUBLICATION,
+                LegalCopy.SCHEDULE_NE_EXECUTE,
+                LegalCopy.DATASET_NE_BINARY,
+            ).joinToString("\n"),
+            style = MonoStyle.copy(color = Muted, fontSize = 11.sp),
+        )
+        Spacer(Modifier.height(8.dp))
         Text(LegalCopy.SIGNING_KEY_OFF_DEVICE, style = MonoStyle.copy(color = Muted, fontSize = 11.sp))
     }
 }
